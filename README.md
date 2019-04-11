@@ -32,3 +32,8 @@ npm run test:e2e
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Run Vue UI
+```
+vue ui   ->  http://localhost:8000/dashboard
+```

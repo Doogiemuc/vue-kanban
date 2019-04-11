@@ -1,0 +1,55 @@
+[Open Files]
+Active File Display Mode=1
+Active File Index=3
+Open File Line0=0
+Open File Line1=3652
+Open File Line2=0
+Open File Line3=0
+Open File Line4=0
+Open File Line5=0
+Open File Line6=0
+Open File Line7=0
+Open File Line8=2702
+Open File Pos0=1190
+Open File Pos1=4654
+Open File Pos2=399
+Open File Pos3=627
+Open File Pos4=606
+Open File Pos5=713
+Open File Pos6=489
+Open File Pos7=305
+Open File Pos8=3546
+Open File Window Pos0=0,1,-1,-1,-1,-1,5,27,1652,979
+Open File Window Pos1=0,1,-1,-1,-1,-1,5,27,1652,979
+Open File Window Pos2=0,1,-1,-1,-1,-1,5,27,1652,979
+Open File Window Pos3=0,1,-1,-1,-1,-1,5,27,1652,979
+Open File Window Pos4=0,1,-1,-1,-1,-1,5,27,1652,979
+Open File Window Pos5=0,1,-1,-1,-1,-1,5,27,1652,979
+Open File Window Pos6=0,1,-1,-1,-1,-1,5,27,1652,979
+Open File Window Pos7=0,1,-1,-1,-1,-1,5,27,1652,979
+Open File Window Pos8=0,1,-1,-1,-1,-1,5,27,1652,979
+Open File0=C:\Coding\git-repos\vue-kanban\public\index.html
+Open File1=C:\Coding\git-repos\vue-kanban\src\main.js
+Open File2=C:\Coding\git-repos\vue-kanban\src\KanbanBoard.vue
+Open File3=C:\Coding\git-repos\vue-kanban\src\components\ReleaseRow.vue
+Open File4=C:\Coding\git-repos\vue-kanban\src\components\KanbanColumn.vue
+Open File5=C:\Coding\git-repos\vue-kanban\src\components\editComponents\CardLinks.vue
+Open File6=C:\Coding\git-repos\vue-kanban\src\components\Card.vue
+Open File7=C:\Coding\git-repos\vue-kanban\src\components\editComponents\ButtonGroup.vue
+Open File8=C:\Coding\git-repos\vue-kanban\src\components\EditCard.vue
+Open File9=
+Remember Files=1
+
+[Project Information]
+	Project Start=E307040003000A00110009002100000036
+	Working Time=6
+
+[Folders]
+	.\=1
+	.\ - public=1
+	.\ - src=1
+	.\ - src - assets=1
+	.\ - src - components=1
+	.\ - tests=1
+	.\ - tests - e2e - specs=1
+
