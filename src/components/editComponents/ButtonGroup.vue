@@ -1,28 +1,33 @@
 <template>
-	<b-button-group	size="sm"	class="mt-1">
-		<b-button	v-for="button	in buttons"	
-			:key="button.value"	
-			:pressed="currentValue === button.value"
-			@click="buttonClicked">
-			{{button.displayName}}
-		</b-button>
-	</b-button-group>	 
+  <b-form-group>
+    <b-form-radio-group
+      v-model="selected"
+      :options="buttonOptions"
+      buttons
+      button-variant="outline-secondary"
+      size="sm"
+      name="radio-btn-outline"
+    ></b-form-radio-group>
+  </b-form-group>
 </template>
-
 
 <script>
 export default {
 	props: {
-		'buttons': { type: Array,	required:	true },
-		'value': { type: Object	}
+		'options': { type: Array,	required:	true },
+		'initialValue': { type: Object, required: false }
+	},
+	computed: {
+	  buttonOptions: function() {
+	    return this.options.map(opt => ({ text: opt.displayName, value: opt.value }))
+	  }
 	},
 	data:	function() { return	{
-		currentValue:	this.value
+		selected: this.initialValue,
 	}},
 	methods: {
 		buttonClicked(evt) {
 			console.log("buttonClicked", evt)
-			this.currentValue	=	evt.target.value
 			this.$emit('input',	evt.target.value)
 		}
 	}

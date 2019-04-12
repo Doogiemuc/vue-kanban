@@ -26,8 +26,7 @@ export default {
 	},
 	methods: {
 		editCard() {
-			console.log("edit	card", this.card)	// this.$root.$children[2].$refs['edit-card-modal'])
-			this.$root.EventBus.$emit('editCard',	this.card);
+			this.$root.globalStore.$emit('editCard', this.card);
 		},
 		getActiveClass(index)	{
 			return { active: index === 0 }

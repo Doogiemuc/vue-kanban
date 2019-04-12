@@ -148,7 +148,6 @@ Vue.use(BootstrapVue)
 //====================================
 // Global data store
 // https://forum.vuejs.org/t/how-set-global-state-available-to-all-components/5947
-/*
 export const globalStore = new Vue({
   data: {
     cards: [],
@@ -158,7 +157,7 @@ export const globalStore = new Vue({
     //getAllCards
   }
 })
-*/
+
 
 
 //====================================
@@ -168,9 +167,8 @@ Promise.resolve()
 //  .then(createTestData)
   .then(getAllCardsFromDb)
   .then(dbResult => {
-    //globalStore.cards = getAllCards(dbResult)
-    
-    var kanbanData = getKanbanData(releases, dbResult)
+    globalStore.cards = getAllCards(dbResult)
+    let kanbanData = getKanbanData(releases, dbResult)
     
     new Vue({
       // Pass property data down to Vue root app  KanbanBoard.vue  
@@ -182,6 +180,10 @@ Promise.resolve()
           columns: columns,
         }       
       }),
+      data: {
+        globalStore: globalStore,     // this is available to all child components as  this.$root.globalStore
+        //api: apiService,
+      },
       created() {
         //console.log("Vue app created.", kanbanData)
       },

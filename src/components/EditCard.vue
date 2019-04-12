@@ -1,4 +1,5 @@
 <template>
+
 	<b-modal id="edit-card-modal"	ref="edit-card-modal"	size="lg"	no-fade	scrollable no-close-on-esc no-close-on-backdrop	hide-header-close	:title="'Edit: '+card.title" dialog-class="shadow-lg">
 		<form>
 			<div v-for="field	in editableFields" :key="field._id"	class="form-group	row">
@@ -10,14 +11,14 @@
 					</select>
 					<button-group	v-else-if="field.type	===	'ButtonGroup'"
 						v-model="card[field.key]"
-						:buttons="field.buttons">
+						:options="field.buttons">
 					</button-group>
 					<VueMultiSelect	v-else-if="field.type	===	'MultiSelect'"
 						v-model="selectedTags"
 						:options="field.tagOptions"
 						:multiple="true"
 						:taggable="false"
-						placeholder="Search	for	tag"
+						placeholder="Search for tag"
 						label="displayName"
 						track-by="value">
 					</VueMultiSelect>
@@ -49,13 +50,13 @@ var	editableFields = [
 	{
 		_id: 1,
 		key: "project",
-		displayName: "Project",
+		displayName: "Product",
 		type:	"SingleSelect",
 		placeholder: "Select Project",
 		options: [
-			{	displayName: "DummyProject 1", value:	"Project1" },
-			{	displayName: "DummyProject 2", value:	"Project2" },
-			{	displayName: "DummyProject 3", value:	"Project3" },
+			{	displayName: "DummyProduct 1", value:	"Product1" },
+			{	displayName: "DummyProduct 2", value:	"Product2" },
+			{	displayName: "DummyProduct 3", value:	"Product3" },
 		],
 	},
 	{
@@ -83,7 +84,7 @@ var	editableFields = [
 	},
 	{
 		_id: 4,
-		field: "links",
+		key: "links",
 		displayName: "Links",
 		type:	"CardLinks",
 		linkTypes: [
@@ -114,6 +115,19 @@ export default {
 			return "background-color:	#4a6785;"
 		},
 	},
+  mounted() {
+	  var that = this
+	  that.$refs['edit-card-modal'].$on('ok', function(args) {
+	    console.log("Modal OK clicked", args)
+	  })
+	  this.$root.globalStore.$on('editCard', function(cardToEdit) {
+	    //cannot Simply assign to this.card. Must set each attribute as a VueJS reactive property
+	    editableFields.forEach(field => {
+	    	this.$set(that.card, field.key, cardToEdit[field.key])
+	    })
+	    that.$refs['edit-card-modal'].show()
+	  })
+	}
 }
 </script>
 

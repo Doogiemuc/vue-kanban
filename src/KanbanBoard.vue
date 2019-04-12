@@ -2,9 +2,9 @@
 	<div class="container-fluid">
 		<h1>Kanban Board</h1>
 		<div class="row">
-			<div class="col	kanban-col"	v-for="col in	columns" :key="col._id">
+			<div class="col	kanban-col-title"	v-for="col in	columns" :key="col._id">
 				<div class="float-right	kanban-col-handle"><i	class="fas fa-ellipsis-v"></i></div>
-				<h3	class="kanban-col-title">{{col.title}}</h3>
+				<h3>{{col.title}}</h3>
 			</div>
 		</div>
 		<div class="row" v-if="noReleases"><div	class="col">No releases	to show.</div></div>
@@ -44,12 +44,11 @@ export default {
 	mounted()	{
 		//console.log("KanbanBoard.releases",	this.release)
 		//console.log("KanbanBoard.columns", this.columns)
+		//this.globalStore.$on('editCard', this.editCard())
 	},
 	methods: {
-		editCard(card) {
-			this.currentlyEditedCard = card
-			this.$refs.editCardModal.show()
-		},
+
+
 	}
 		
 }
@@ -57,9 +56,13 @@ export default {
 
 <style>
 .kanban-col-title	{
-	color: #666;
-	padding-left:	0.5rem;
-	margin-bottom: 0;
+  background: #E9EEF2;
+  border-radius: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.kanban-col-title h3 {
+  margin-bottom: 3px;
 }
 .kanban-col-handle {
 	color: #666;
