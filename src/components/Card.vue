@@ -4,7 +4,7 @@
 		<div v-html="card.description"></div>
 		<span	v-for="label in	card.labels" :key="label"	class="card-label">{{label}}</span>
 		<!-- b-button	href="#" variant="primary">Primary</b-button -->
-		<a href="#"	class="float-right"	@click="editCard"><i class="far	fa-edit"></i></a>
+		<a href="#"	class="float-right"	@click="startEditCard"><i class="far	fa-edit"></i></a>
 	</b-card>	
 </template>
 
@@ -25,8 +25,8 @@ export default {
 		},		
 	},
 	methods: {
-		editCard() {
-			this.$root.globalStore.$emit('editCard', this.card);
+		startEditCard() {
+		  this.$root.cardStore.editCard(this.card)
 		},
 		getActiveClass(index)	{
 			return { active: index === 0 }

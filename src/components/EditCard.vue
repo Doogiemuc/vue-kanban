@@ -1,9 +1,9 @@
 <template>
-
 	<b-modal id="edit-card-modal"	ref="edit-card-modal"	size="lg"	no-fade	scrollable no-close-on-esc no-close-on-backdrop	hide-header-close	:title="'Edit: '+card.title" dialog-class="shadow-lg">
-		<form>
 			<div v-for="field	in editableFields" :key="field._id"	class="form-group	row">
-				<label :for="field.key"	class="col-sm-2	col-form-label">{{field.displayName}}</label>
+				<div class="col-sm-2">
+				  <label :for="field.key"	class="col-sm-2	col-form-label">{{field.displayName}}</label>
+				</div>
 				<div class="col-sm-10">
 					<input v-if="field.type	===	'TextInput'" type="text" class="form-control"	:id="field.field"	:name="field.field"	v-model="card[field.key]"	:placeholder="field.placeholder" />
 					<select	v-else-if="field.type	===	'SingleSelect'"	v-model="card[field.key]"	class="form-control" :id="field.field">
@@ -18,7 +18,7 @@
 						:options="field.tagOptions"
 						:multiple="true"
 						:taggable="false"
-						placeholder="Search for tag"
+						placeholder="Search for tags"
 						label="displayName"
 						track-by="value">
 					</VueMultiSelect>
@@ -32,7 +32,6 @@
 					<b-form-text v-if="field.description">{{field.description}}</b-form-text>
 				</div>
 			</div>
-		</form>
 	</b-modal>
 </template>
 
@@ -106,7 +105,7 @@ export default {
 		VueMultiSelect:	window.VueMultiselect.default,
 	},
 	data:	function() { return	{
-		card:	{},
+	  card: {},
 		editableFields:	editableFields,
 		selectedTags:	undefined,		//TODO:	move to	child	component
 	}},
@@ -115,18 +114,28 @@ export default {
 			return "background-color:	#4a6785;"
 		},
 	},
+	created() {
+	  editableFields.forEach(field => {
+	   	this.$set(this.card, field.key, undefined)
+	  })
+	},
   mounted() {
-	  var that = this
-	  that.$refs['edit-card-modal'].$on('ok', function(args) {
-	    console.log("Modal OK clicked", args)
-	  })
-	  this.$root.globalStore.$on('editCard', function(cardToEdit) {
-	    //cannot Simply assign to this.card. Must set each attribute as a VueJS reactive property
+	  this.$root.cardStore.$on('editCard', this.startEditCard)
+	  this.$refs['edit-card-modal'].$on('ok', this.saveEditedCard)
+	},
+	methods: {
+	  startEditCard(cardToEdit) {
+	    // by default keep all attributes of cardToEdit
+	    this.card = cardToEdit
+	    // then make the editable attributes reactive
 	    editableFields.forEach(field => {
-	    	this.$set(that.card, field.key, cardToEdit[field.key])
+	    	this.$set(this.card, field.key, cardToEdit[field.key])
 	    })
-	    that.$refs['edit-card-modal'].show()
-	  })
+	    this.$refs['edit-card-modal'].show()
+	  },
+	  saveEditedCard() {
+	    this.$root.cardStore.saveCard(this.card)
+	  }
 	}
 }
 </script>
