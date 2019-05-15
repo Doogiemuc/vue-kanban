@@ -1,15 +1,12 @@
-/*eslint no-unused-vars: 0*/
-
-import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue'
-import CardStore from './components/CardStore.vue'
-import KanbanBoard from './KanbanBoard.vue'
-
-//console.clear()
+console.clear()
 console.log("=============================")
 console.log("===== Welcome to KANBAN =====")
 console.log("=============================")
 
+import Vue from 'vue'
+import store from './store/vuex-store.js'
+import BootstrapVue from 'bootstrap-vue'
+import KanbanBoard from './KanbanBoard.vue'
 
 //====================================
 // Configure VueJS
@@ -17,39 +14,37 @@ Vue.config.devtools=false    //suppress some Vue warnings
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 
-var cardStore = new Vue(CardStore)
 
 //====================================
 // Start Vue.js root app
 Promise.resolve()
-//  .then(CardStore.deleteAllDocsInDb)
-//  .then(CardStore.createTestData)
-  .then(cardStore.getAllCardsFromDb)
+//  .then(store.deleteAllDocsInDb)
+//  .then(store.createTestData)
+  .then(() => store.dispatch('loadCardsFromDB'))
   .then(allCards => {
 
-    let kanbanData = cardStore.getKanbanData()
-
+    // Create the Vue RootApp instance
     new Vue({
-      // Pass property data down to Vue root app  KanbanBoard.vue  
-      // All this data is available via  this.$root...  in every child component
-      // https://vuejs.org/v2/api/#propsData
+      el: '#app',
+      // Pass property data down to KanbanBoard.vue - https://vuejs.org/v2/api/#propsData
       render: h => h(KanbanBoard, { 
         props: {
-          kanbanData: kanbanData,
-// eslint-disable-next-line no-undef          
-          columns: columns,
-        }       
+          someProb: "value"   // This way you can inject properties into the KanbanBoard
+        } 
       }),
+      store,      // vuex-store is directly available to all components as this.$store
       data: {
-        cardStore: cardStore,     // this is available to all child components as  this.$root.cardStore and I love this pattern
+        
       },
       created() {
-        //console.log("Vue app created.", kanbanData)
+        console.log("Vue app created.", allCards)
       },
       mounted() {
-        console.log("Vue app mounted successfully", kanbanData)
+        console.log("Vue app mounted successfully", this.$store.cards)
       },
-    }).$mount('#app')
+    }) //.$mount('#app')
+    
+    
     
   })
 

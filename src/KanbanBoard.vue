@@ -1,7 +1,6 @@
 <template>
 	<div class="container-fluid">
-		<h1>Kanban Board</h1>
-		<div class="row">
+		<div class="row top-row">
 			<div class="col	kanban-col-title"	v-for="col in	columns" :key="col._id">
 				<div class="float-right	kanban-col-handle"><i	class="fas fa-ellipsis-v"></i></div>
 				<h3>{{col.title}}</h3>
@@ -29,14 +28,33 @@ export default {
 		ReleaseRow:	ReleaseRow,
 		EditCard:	EditCard,
 	},
+	/*
 	props: {
 		kanbanData:	{	type:	Array, required: true	},
 		columns:		{	type:	Array, required: true	},
 	},
+	*/
 	data:	function() { return	{
 		currentlyEditedCard: {}
 	}},
 	computed:	{
+	  columns() {
+	    return this.$store.state.columns
+	  },
+	  releases() {
+	    return this.$store.state.releases
+	  },
+	  kanbanData() { 
+	    //console.log(this.$store)
+	    return this.releases.map(rel => ({
+        '_id': rel._id,
+        'title': rel.title,
+        'columns': this.columns.map(col => ({
+          '_id':   col._id,
+          'cards': this.$store.getters.getCardsForRowAndCol(rel, col)
+        }))
+      }))
+	  },
 		noReleases() { 
 			return this.kanbanData.length	===	0
 		}
@@ -55,11 +73,16 @@ export default {
 </script>
 
 <style>
+.top-row {
+  margin-top: 5px;
+}
 .kanban-col-title	{
-  background: #E9EEF2;
-  border-radius: 5px;
+  background: #ced2d6;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
   margin-left: 5px;
   margin-right: 5px;
+  text-align: center;
 }
 .kanban-col-title h3 {
   margin-bottom: 3px;

@@ -26,7 +26,7 @@ export default {
 	},
 	methods: {
 		startEditCard() {
-		  this.$root.cardStore.editCard(this.card)
+		  this.$store.startEditCard(this.card)
 		},
 		getActiveClass(index)	{
 			return { active: index === 0 }

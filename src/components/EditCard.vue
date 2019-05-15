@@ -1,37 +1,35 @@
 <template>
 	<b-modal id="edit-card-modal"	ref="edit-card-modal"	size="lg"	no-fade	scrollable no-close-on-esc no-close-on-backdrop	hide-header-close	:title="'Edit: '+card.title" dialog-class="shadow-lg">
-			<div v-for="field	in editableFields" :key="field._id"	class="form-group	row">
-				<div class="col-sm-2">
-				  <label :for="field.key"	class="col-sm-2	col-form-label">{{field.displayName}}</label>
-				</div>
-				<div class="col-sm-10">
-					<input v-if="field.type	===	'TextInput'" type="text" class="form-control"	:id="field.field"	:name="field.field"	v-model="card[field.key]"	:placeholder="field.placeholder" />
-					<select	v-else-if="field.type	===	'SingleSelect'"	v-model="card[field.key]"	class="form-control" :id="field.field">
-						<option	v-for="opt in	field.options" :key="opt.value"	:value="opt.value">{{opt.displayName}}</option>
-					</select>
-					<button-group	v-else-if="field.type	===	'ButtonGroup'"
-						v-model="card[field.key]"
-						:options="field.buttons">
-					</button-group>
-					<VueMultiSelect	v-else-if="field.type	===	'MultiSelect'"
-						v-model="selectedTags"
-						:options="field.tagOptions"
-						:multiple="true"
-						:taggable="false"
-						placeholder="Search for tags"
-						label="displayName"
-						track-by="value">
-					</VueMultiSelect>
-					<card-links	v-else-if="field.type	===	'CardLinks'"
-						:initLinks="[]"
-						:linkTypes="field.linkTypes"
-						:cards="[]"
-						:description="field.description">
-					</card-links>
-					<p v-else	class="mt-2">Unknown field.type	{{field.type}}</p>
-					<b-form-text v-if="field.description">{{field.description}}</b-form-text>
-				</div>
+		<div v-for="field	in editableFields" :key="field._id"	class="form-group	row">
+			<div class="col-sm-2">
+			  <label :for="field.key"	class="col-sm-2	col-form-label">{{field.displayName}}</label>
 			</div>
+			<div class="col-sm-10">
+				<input v-if="field.type	===	'TextInput'" type="text" class="form-control"	:id="field.field"	:name="field.field"	v-model="card[field.key]"	:placeholder="field.placeholder" />
+				<select	v-else-if="field.type	===	'SingleSelect'"	v-model="card[field.key]"	class="form-control" :id="field.field">
+					<option	v-for="opt in	field.options" :key="opt.value"	:value="opt.value">{{opt.displayName}}</option>
+				</select>
+				<button-group	v-else-if="field.type	===	'ButtonGroup'"
+					v-model="card[field.key]"
+					:options="field.buttons">
+				</button-group>
+				<VueMultiSelect	v-else-if="field.type	===	'MultiSelect'"
+					v-model="selectedTags"
+					:options="field.tagOptions"
+					:multiple="true"
+					:taggable="false"
+					placeholder="Search for tags"
+					label="displayName"
+					track-by="value">
+				</VueMultiSelect>
+				<card-links	v-else-if="field.type	===	'CardLinks'"
+				  :card="card"
+					:description="field.description">
+				</card-links>
+				<p v-else	class="mt-2">Unknown field.type	{{field.type}}</p>
+				<b-form-text v-if="field.description">{{field.description}}</b-form-text>
+			</div>
+		</div>
 	</b-modal>
 </template>
 
@@ -77,7 +75,7 @@ var	editableFields = [
 		type:	"ButtonGroup",
 		buttons: [
 			{	displayName: "Todo", value:	"Todo" },
-			{	displayName: "In Progress",	value:	"InProgress" },
+			{	displayName: "In Progress",	value:	"In Progress" },
 			{	displayName: "Done", value:	"Done" },
 		]
 	},
@@ -85,13 +83,7 @@ var	editableFields = [
 		_id: 4,
 		key: "links",
 		displayName: "Links",
-		type:	"CardLinks",
-		linkTypes: [
-			{	displayName: "[Select	link type]", value:	null },
-			{	displayName: "related",	value: "related" },
-			{	displayName: "depends	on", value:	"dependsOn"	},
-			{	displayName: "child	of", value:	"childOf"	},
-		]
+		type:	"CardLinks"
 	},
 ]
 
@@ -120,7 +112,6 @@ export default {
 	  })
 	},
   mounted() {
-	  this.$root.cardStore.$on('editCard', this.startEditCard)
 	  this.$refs['edit-card-modal'].$on('ok', this.saveEditedCard)
 	},
 	methods: {
@@ -134,12 +125,15 @@ export default {
 	    this.$refs['edit-card-modal'].show()
 	  },
 	  saveEditedCard() {
-	    this.$root.cardStore.saveCard(this.card)
+	    this.$store.commit('setCard', this.card)
 	  }
 	}
 }
 </script>
 
 <style>
+.multiselect {
+  z-index: 1060;
+}
 </style>
 

@@ -7,7 +7,7 @@
  Global data store vor cards 
  This is not a UI component. This is an adapter to PouchDB.
  */
- 
+
  
 //====================================
 // Test Fixtures
@@ -40,18 +40,23 @@ const releases = [
   },
 ]
 
-//===========================================================================
-// Utility methods for mapping PuchDB results into data for KanbanBoard
-// TODO: make this configurable   and also not just for release swimlanes, but any type of swimlane
-var getCardsForRelAndColFunc = function(allCards, rel, col) {
+const linkTypes = [
+	{	_id: 0, displayName: "related",	value: "related" },
+	{	_id: 1, displayName: "depends	on", value:	"dependsOn"	},
+	{	_id: 2, displayName: "child	of", value:	"childOf"	},
+]
+
+
+/**
+ Get the list of cards for the given row and col on the board.
+ @param allCards {Array} List of all cards
+ @param row {Object} the swimmlane, eg. a release
+ @param col {Object} a column, eg. mapped to the status of a card
+ */
+var getCardsForRowAndColFunc = function(allCards, row, col) {
   return allCards.filter(card =>  {
-    return card.release._id === rel._id && card.status === col.title    
+    return card.release._id === row._id && card.status === col.title    
   })
-}
- 
- 
-var getRandomInt = function(max) {
-  return Math.floor(Math.random() * Math.floor(max));
 }
  
 //====================================
@@ -65,11 +70,11 @@ var db = new PouchDB('kanban_board_db');
 export default {
 	data:	function() { return	{
 		cards: [],
-		releases: releases,
-		columns: columns,
+		releases:  releases,
+		columns:   columns,
+		linkTypes: linkTypes,
 	}},
 	methods: {
-    
     getAllCardsFromDb()  {
       return db.allDocs({
         include_docs: true
@@ -112,7 +117,7 @@ export default {
       for (let i = 0; i < 10; i++) {
         cards.push({
           _id: "Card"+i, 
-          title: "Card  "+i,
+          title: "Card "+i,
           status: columns[getRandomInt(columns.length)].title,
           release: releases[getRandomInt(releases.length)],
           description: "Some dummy content for card "+i+" with <b>HTML</b>. asdflkjawe kltnlasdg klaj glkj ag lk adlkgjaergelkgj. laskjfasd lkjasd lkweklwejnwefkasdhf vsdf wenwef asdlkfjw eflknf aslkenff enfweo pivuicvioen.",
@@ -139,22 +144,27 @@ export default {
         'title': rel.title,
         'columns': this.columns.map(col => ({
           '_id':   col._id,
-          'cards': getCardsForRelAndColFunc(this.cards, rel, col)
+          'cards': getCardsForRowAndColFunc(this.cards, rel, col)
         }))
       }))
     },
 
     /** 
+      Start editing a card:
       Fetch most current version of card from DB.
-      Emit 'editCard' event that will show the EditCard.vue modal.
+      Then emit 'editCard' event wich will show the EditCard.vue modal.
      */
-    editCard(card) {
+    startEditCard(card) {
       db.get(card._id).then(currentCardDoc => {
         this.$emit('editCard', currentCardDoc); 
       })
     },
 
-    /** store card to DB and return the saved result (with new rev) */
+    /** 
+      Store card to DB and return the saved result (with new rev) 
+      May lead to a conflict, when current DB doc was changed from somewhere else,
+      and now has a higher rev.
+     */
     saveCard(newCard) {
       return db.put(newCard)
         .then(res => {
@@ -180,6 +190,12 @@ export default {
 	}
 		
 }
+
+var getRandomInt = function(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+
 </script>
 
 <style>

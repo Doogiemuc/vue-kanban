@@ -46,7 +46,6 @@ export default {
 <style>
 .kanban-col	{
 	background:	#E9EEF2;
-	border-radius: 5px;
 	padding: 5pt;
 	margin-left: 5px;
 	margin-right:	5px;

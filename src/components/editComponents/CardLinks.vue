@@ -1,53 +1,64 @@
 <template>
 	<div>
-		<a v-for="link in	links" :key="link.targetCard._id"	href="#">{{link.targetCard.title}}</a>
+		<a v-for="link in	card.links" :key="link.targetCard._id"	href="#">{{link.targetCard.title}}</a>
 		<b-form	inline>
-			<b-form-select v-model="newLinkType" :options="linkTypes"	placeholder="Link	type"	size="sm"	class="mr-3"></b-form-select>
-			<multiselect 
+			<b-form-select v-model="newLinkType" :options="linkTypeOptions"	placeholder="Link	type"	size="sm"	class="mr-3">
+			  <template slot="first">
+          <option :value="undefined" disabled>[Link Type]</option>
+        </template>
+			</b-form-select>
+			<b-form-select v-model="newLinkTarget" :options="linkTargetOptions" placeholder="Link taget" size="sm" class="mr-3">
+  			<template slot="first">
+          <option :value="undefined" disabled>[Link Target]</option>
+        </template>
+			</b-form-select>
+			<!-- multiselect 
 				v-model="newLinkTarget"
 				:options="cards"
 				:multiple="false"
 				:taggable="false"
 				placeholder="Link	target"
 				label="title"
-				track-by="key">
-			</multiselect>		
-			<!-- b-form-input	v-model="linkTarget" placeholder="Link Target" size="sm" class="mr-3"></b-form-input -->
+				track-by="_id"
+				class="cardSelector">
+			</multiselect -->
 			<b-button	size="sm"	variant="outline-secondary">Add	Link</b-button>
 		</b-form>
 	</div>
 </template>
 
 <script>
-
 export default {
 	components:	{
-		multiselect: window.VueMultiselect.default
+		//multiselect: window.VueMultiselect.default
 	},
 	props: {
-		initLinks: { type: Array,	required:	true },
-		linkTypes: { type: Array,	required:	true },
-		cards:		 { type: Array,	required:	true },
+	  card: { type: Object, required: true }
 	},
 	data:	function() { return	{
-		links: this.initLinks,
-		newLinkType: null,
+		newLinkType: undefined,
 		newLinkTarget: undefined,
 	}},
 	computed:	{
-		selectOptions: function()	{
-			return this.linkTypes.map(l	=> ({text: l.displayName,	value: l.value}))
-		}
+		linkTypeOptions: function()	{
+			return this.$store.state.linkTypes.map(l	=> ({text: l.displayName,	value: l.value}))
+		},
+		linkTargetOptions: function() {
+		  return this.$store.getters.cardsArray.map(card => ({text: card.title, value: card._id}))
+		},
 	},
 	methods: {
 		addLink()	{
 			console.log("CardLinks.addLink")
 		}
-	}
+	},
 	
 }
 </script>
 
 <style>
+.cardSelector {
+  width: auto;
+}
 </style>
 
