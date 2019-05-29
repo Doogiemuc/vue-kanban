@@ -2,13 +2,19 @@
 	<b-card	:title="card.title"	class="kanban-card"	:style="computedStyle">
 		<div class="card-avatar" :style="avatarBackgroundStyle">AB</div>
 		<div v-html="card.description"></div>
-		<span	v-for="label in	card.labels" :key="label"	class="card-label">{{label}}</span>
-		<!-- b-button	href="#" variant="primary">Primary</b-button -->
-		<a href="#"	class="float-right"	@click="startEditCard"><i class="far	fa-edit"></i></a>
-	</b-card>	
+		<div v-if="card.links.length > 0" class="clearfix">
+		  <a class="kanbancard-link" v-for="link in card.links" :key="link.target" href="#">{{link.target}}</a>
+		</div>
+		<div v-if="card.labels.length > 0" class="clearfix">
+		  <span	v-for="label in	card.labels" :key="label.value"	class="card-label">{{label.displayName}}</span>
+		</div>
+    <a href="#"	class="card-edit-icon" @click="startEditCard"><i class="far fa-edit"></i></a>
+	</b-card>
 </template>
 
 <script>
+import EventBus from '../store/EventBus.js'
+
 export default {
 	props: {
 		'card':	{	type:	Object,	required:	true },
@@ -19,14 +25,20 @@ export default {
 			return "background-color:	#4a6785;"	 //TODO: pick	different	background for each	username
 		},
 		computedStyle: function()	{
-			return this.card.status	===	"Done" 
-				?	{	"border-left": "3px	solid	green" }
-				:	{	}
-		},		
+			switch(this.card.status.displayName) {
+			  case "Done":
+			    return {	"border-left": "3px	solid	green" }
+			  case "In Progress":
+			    return {	"border-left": "3px	solid	#ecec10" }
+			  default:
+			    return {}
+			}
+		},
 	},
 	methods: {
 		startEditCard() {
-		  this.$store.startEditCard(this.card)
+		  //this.$store.dispatch('startEditCard', this.card._id)
+		  EventBus.$emit('start-edit-card', this.card._id)    // MUST use kebap-case for events!
 		},
 		getActiveClass(index)	{
 			return { active: index === 0 }
@@ -50,13 +62,20 @@ export default {
 	padding: 0.5rem;
 	position:	relative;
 }
+
+.kanbancard-link {
+  float: left;
+}
+.kanbancard-link+.kanbancard-link::before {
+  content: ", "
+}
+
 .card-label	{
 	float: left;
 	background:	#EEE;
 	border:	1px	solid	#DDD;
 	border-radius: 5px;
-	padding-left:	3px;
-	padding-right: 3px;
+	padding: 0px 3px;
 	line-height: 1.2;
 	margin-top:	5px;
 	margin-right:	3px;
@@ -77,11 +96,15 @@ export default {
 	vertical-align:	middle;
 }
 
-.kanban-card .fa-edit	{
+.card-edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+.kanban-card .card-edit-icon	{
 	visibility:	hidden;
 }
-
-.kanban-card:hover .fa-edit	{
+.kanban-card:hover .card-edit-icon	{
 	visibility:	visible;
 }
 

@@ -2,14 +2,16 @@
 	<div>
 		<div class="row">
 			 <div	class="col release-title">
-				 <h5><i	class="fas fa-angle-down"></i>&nbsp;{{releaseTitle}}</h5>
-			 </div>	 
+				 <h5><i	class="fas fa-angle-down"></i>&nbsp;{{release.displayName}}</h5>
+			 </div>
+
 		</div>
 		<div class="row">
 			<kanban-column
 				v-for="col in	columns"
 				:key="col._id"
-				:cards="col.cards">
+				:row="release"
+				:column="col">
 			</kanban-column>
 		</div>
 	</div>
@@ -23,11 +25,11 @@ export default {
 		KanbanColumn:	KanbanColumn
 	},
 	props: {
-		'releaseTitle':	{	type:	String,	required:	true },
-		'columns':			{	type:	Array,	required:	true,	validator: function(cols)	{
-			return cols[0].cards !== undefined;
-		}	}
+		'release':	{	type:	Object,	required:	true },
 	},
+	computed: {
+		columns() { return this.$root.eventBus.columns }
+	}
 }
 </script>
 

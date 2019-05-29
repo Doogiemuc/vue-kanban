@@ -12,7 +12,7 @@
           <option :value="undefined" disabled>[Link Target]</option>
         </template>
 			</b-form-select>
-			<!-- multiselect 
+			<!-- multiselect
 				v-model="newLinkTarget"
 				:options="cards"
 				:multiple="false"
@@ -41,10 +41,10 @@ export default {
 	}},
 	computed:	{
 		linkTypeOptions: function()	{
-			return this.$store.state.linkTypes.map(l	=> ({text: l.displayName,	value: l.value}))
+			return [] //this.$store.state.linkTypes.map(l	=> ({text: l.displayName,	value: l.value}))
 		},
 		linkTargetOptions: function() {
-		  return this.$store.getters.cardsArray.map(card => ({text: card.title, value: card._id}))
+		  return [] // this.$store.getters.cardsArray.map(card => ({text: card.title, value: card._id}))
 		},
 	},
 	methods: {
@@ -52,7 +52,7 @@ export default {
 			console.log("CardLinks.addLink")
 		}
 	},
-	
+
 }
 </script>
 

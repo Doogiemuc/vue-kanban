@@ -13,15 +13,17 @@
 					v-model="card[field.key]"
 					:options="field.buttons">
 				</button-group>
-				<VueMultiSelect	v-else-if="field.type	===	'MultiSelect'"
-					v-model="selectedTags"
-					:options="field.tagOptions"
+				<multiselect	v-else-if="field.type	===	'MultiSelect'"
+					v-model="card['labels']"
+					:options="field.tags"
+					:option-height="10"
 					:multiple="true"
 					:taggable="false"
+					:showLabels="false"
 					placeholder="Search for tags"
 					label="displayName"
 					track-by="value">
-				</VueMultiSelect>
+				</multiselect>
 				<card-links	v-else-if="field.type	===	'CardLinks'"
 				  :card="card"
 					:description="field.description">
@@ -30,75 +32,36 @@
 				<b-form-text v-if="field.description">{{field.description}}</b-form-text>
 			</div>
 		</div>
+
+		<template slot="modal-footer" slot-scope="{ ok, cancel }">
+      <b-button variant="success" @click="ok()">
+        OKKK
+      </b-button>
+      <b-button variant="scondary" @click="cancel()">
+        CancelLLL
+      </b-button>
+    </template>
 	</b-modal>
 </template>
 
 
 <script>
-
-var	editableFields = [
-	{
-		_id: 0,
-		key: "title",
-		displayName: "Title",
-		type:	"TextInput",
-		//TODO:	validator	etc.
-	},
-	{
-		_id: 1,
-		key: "project",
-		displayName: "Product",
-		type:	"SingleSelect",
-		placeholder: "Select Project",
-		options: [
-			{	displayName: "DummyProduct 1", value:	"Product1" },
-			{	displayName: "DummyProduct 2", value:	"Product2" },
-			{	displayName: "DummyProduct 3", value:	"Product3" },
-		],
-	},
-	{
-		_id: 2,
-		key: "tags",
-		displayName: "Tags",
-		type:	"MultiSelect",
-		description: "You	can	select multiple	tags.",
-		tagOptions:	[
-			{	displayName: "Tag	A",	value: "TagA"	},
-			{	displayName: "Tag	B",	value: "TagB"	},
-			{	displayName: "Tag	C",	value: "TagC"	},
-		]
-	},
-	{
-		_id: 3,
-		key: "status",
-		displayName: "Status",
-		type:	"ButtonGroup",
-		buttons: [
-			{	displayName: "Todo", value:	"Todo" },
-			{	displayName: "In Progress",	value:	"In Progress" },
-			{	displayName: "Done", value:	"Done" },
-		]
-	},
-	{
-		_id: 4,
-		key: "links",
-		displayName: "Links",
-		type:	"CardLinks"
-	},
-]
-
+import EventBus from '../store/EventBus.js'
 import ButtonGroup from	'./editComponents/ButtonGroup.vue'
 import CardLinks from	'./editComponents/CardLinks.vue'
+import Multiselect from 'vue-multiselect'
+import TestData from '../TestData.js'   // TODO: load via store
 
 export default {
 	components:	{
 		ButtonGroup: ButtonGroup,
 		CardLinks: CardLinks,
-		VueMultiSelect:	window.VueMultiselect.default,
+		//VueMultiSelect:	window.VueMultiselect.default,
+		Multiselect: Multiselect
 	},
 	data:	function() { return	{
 	  card: {},
-		editableFields:	editableFields,
+		editableFields:	TestData.editableFields,
 		selectedTags:	undefined,		//TODO:	move to	child	component
 	}},
 	computed:	{
@@ -107,21 +70,15 @@ export default {
 		},
 	},
 	created() {
-	  editableFields.forEach(field => {
-	   	this.$set(this.card, field.key, undefined)
-	  })
 	},
   mounted() {
+    EventBus.$on('start-edit-card', this.startEditCard)  // param 'cardId' is passed here
 	  this.$refs['edit-card-modal'].$on('ok', this.saveEditedCard)
 	},
 	methods: {
-	  startEditCard(cardToEdit) {
-	    // by default keep all attributes of cardToEdit
-	    this.card = cardToEdit
-	    // then make the editable attributes reactive
-	    editableFields.forEach(field => {
-	    	this.$set(this.card, field.key, cardToEdit[field.key])
-	    })
+	  startEditCard(cardId) {
+	    this.card = this.$store.getters.getCardById(cardId)  //TODO: make a deep copy of this card  => user may press cancel
+	    if (!this.card) console.log("WARN: cannot find card._id="+cardId+" to edit!")
 	    this.$refs['edit-card-modal'].show()
 	  },
 	  saveEditedCard() {
@@ -134,6 +91,32 @@ export default {
 <style>
 .multiselect {
   z-index: 1060;
+}
+.multiselect__placeholder {
+  padding: 0;
+  margin: 0;
+}
+.multiselect__content-wrapper {
+  width: calc(100% - 10px);
+  margin-left: 5px;
+  border-color: #007bff;
+}
+.multiselect--active:not(.multiselect--above) .multiselect__tags {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+  border-radius: 5px;
+}
+.multiselect__option {
+  padding: 0 5px;
+  min-height: inherit;
+  line-height: inherit;
+}
+.multiselect__option--highlight {
+  background: #007bff;
+}
+.multiselect__tag {
+  background: #007bff;
 }
 </style>
 

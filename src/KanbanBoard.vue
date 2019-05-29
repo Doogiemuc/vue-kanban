@@ -3,19 +3,18 @@
 		<div class="row top-row">
 			<div class="col	kanban-col-title"	v-for="col in	columns" :key="col._id">
 				<div class="float-right	kanban-col-handle"><i	class="fas fa-ellipsis-v"></i></div>
-				<h3>{{col.title}}</h3>
+				<h3>{{col.displayName}}</h3>
 			</div>
 		</div>
-		<div class="row" v-if="noReleases"><div	class="col">No releases	to show.</div></div>
-		
+		<div class="row" v-if="releases.length === 0"><div class="col">KanbanBoard: No releases	to show.</div></div>
+
 		<release-row
-			v-for="rel in	kanbanData"
+			v-for="rel in	releases"
 			:key="rel._id"
-			:releaseTitle="rel.title"
-			:columns="rel.columns">
-		</release-row>		
-		
-		<edit-card ref="editCardModal" v-model="currentlyEditedCard"></edit-card>
+			:release="rel">
+		</release-row>
+
+		<edit-card ref="editCardModal"></edit-card>
 	</div>
 </template>
 
@@ -24,28 +23,20 @@ import ReleaseRow	from './components/ReleaseRow.vue'
 import EditCard	from './components/EditCard.vue'
 
 export default {
-	components:	{	
+	components:	{
 		ReleaseRow:	ReleaseRow,
 		EditCard:	EditCard,
 	},
-	/*
-	props: {
-		kanbanData:	{	type:	Array, required: true	},
-		columns:		{	type:	Array, required: true	},
-	},
-	*/
-	data:	function() { return	{
-		currentlyEditedCard: {}
-	}},
 	computed:	{
 	  columns() {
-	    return this.$store.state.columns
+	    return this.$root.eventBus.columns
 	  },
 	  releases() {
-	    return this.$store.state.releases
+	    return this.$root.eventBus.releases
 	  },
-	  kanbanData() { 
-	    //console.log(this.$store)
+	  /*
+	  kanbanData() {
+	    console.log("releases", this.releases)
 	    return this.releases.map(rel => ({
         '_id': rel._id,
         'title': rel.title,
@@ -55,20 +46,13 @@ export default {
         }))
       }))
 	  },
-		noReleases() { 
-			return this.kanbanData.length	===	0
-		}
+	  */
 	},
 	mounted()	{
 		//console.log("KanbanBoard.releases",	this.release)
 		//console.log("KanbanBoard.columns", this.columns)
 		//this.globalStore.$on('editCard', this.editCard())
 	},
-	methods: {
-
-
-	}
-		
 }
 </script>
 

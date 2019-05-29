@@ -7,14 +7,14 @@
 			v-bind="dragOptions"
 			@start="dragging = true"
 			@end="dragging = false">
-			<card	
+			<card
 				v-for="card	in sortedCards"
 				:card="card"
 				:key="card.id">
 			</card>
 			<div v-if="sortedCards.length	===	0" key="99999" style="height:	100px">&nbsp;</div>
 		</draggable>
-	</div>	
+	</div>
 </template>
 
 <script>
@@ -27,10 +27,11 @@ export default {
 		card:	Card,
 	},
 	props: {
-		'cards'	:	{	type:	Array, required: true	},	 //	initial	array	of cards.	May	be changed by	dragging.
+		'column':  { type: Object, required: true	},
+		'row':     { type: Object, required: true	}
 	},
 	data:	function() { return	{
-		sortedCards: this.cards.slice(),	// MUST	make a copy
+		sortedCards: this.$root.eventBus.getCardsForRowAndCol(this.row, this.column), //    //.slice(),	// MUST	make a copy
 		dragging:	false,
 		dragOptions: {
 			animation: 200,
@@ -40,6 +41,7 @@ export default {
 			dragClass: "dragClass"
 		},
 	}},
+
 }
 </script>
 
