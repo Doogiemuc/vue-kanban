@@ -1,23 +1,8 @@
 //====================================
 // Fixed Test Data
-// Columns on the kanban board. And statuus that are mapped to each column.
-const settings = [
-  {
-    _id: "settings/columns",
-    columns: [
-      { displayName: "Todo", status: ["New", "Ready"] },
-      { displayName: "In Progress", status: ["InProgress"] },
-      { displayName: "Done", status: ["Done"] },
-    ]
-  },
-  {
-    _id: "settings/getCardsForRowAndColFunc",
-    func: "thisIsSomeJavaScriptFunktion() {... }"
-  },
-]
 
 // Values for each editable field
-const fieldValues = {
+var fieldValues = {
   "status": [
     { displayName: "New",         value: "New" },
     { displayName: "Ready",       value: "Ready" },
@@ -61,14 +46,16 @@ var notEmptyValidator = function(str) {
  */
 var editableFields = [
 	{
-	  _id: "field/title",
-		displayName: "Title",
-		type:	"TextInput",
+	  _id: "field/title",      // id of PouchDB doc
+		displayName: "Title",    // label for input field
+    key: "title",            // key of JS object attribute
+		type:	"TextInput",       // type of field
 		//validator: notEmptyValidator
 	},
 	{
 		_id: "field/product",
 		displayName: "Product",
+    key: "product",
 		type:	"SingleSelect",
 		placeholder: "Select Product",
 		options: fieldValues.products
@@ -76,29 +63,57 @@ var editableFields = [
 	{
 	  _id: "field/release",
 	  displayName: "Release",
+    key: "release",
 	  type: "SingleSelect",
 	  options: fieldValues.releases
 	},
 	{
 		_id: "field/labels",
-		displayName: "labels",
+		displayName: "Labels",
 		type:	"MultiSelect",
+    key: "labels",
 		description: "You	can	select multiple	labels.",
-		tags:	fieldValues.labels
+		labels:	fieldValues.labels
 	},
 	{
 		_id: "field/status",
 		displayName: "Status",
+    key: "status",
 		type:	"ButtonGroup",
-		buttons: fieldValues.status  // list of statuus
+		buttons: fieldValues.status.map(st => { return { text: st.displayName, value: st.value } })  // list of statuus
 	},
 	{
 		_id: "field/links",
 		displayName: "Links",
+    key: "links",
 		type:	"CardLinks",
 		linkTypes: fieldValues.linkTypes
 	},
 ]
+
+var kanbanData = [
+  { // Columns on the kanban board. And statuus that are mapped to each column.
+    _id: "columns",
+    columns: [
+      { displayName: "Todo", status: ["New", "Ready"] },
+      { displayName: "In Progress", status: ["InProgress"] },
+      { displayName: "Done", status: ["Done"] },
+    ]
+  },
+  {
+    _id: "getCardsForRowAndColFunc",
+    getCardsForRowAndColFunc: "thisIsSomeJavaScriptFunktion() {... }"
+  },
+  {
+    _id: "editableFields",
+    editableFields: editableFields
+  },
+  {
+    _id: "fieldValues",
+    fieldValues: fieldValues
+  }
+]
+
 
 //====================================
 // PouchDB - in browser noSQL database
@@ -107,8 +122,8 @@ import PouchDB from 'pouchdb-browser'
 
 var destroyDbs = function() {
   console.log("Removing all data from pouchDBs! ")
-  var kanbanDb = new PouchDB('kanban_board');
-  var cardsDb  = new PouchDB('kanban_cards');
+  let kanbanDb = new PouchDB('kanban_board');
+  let cardsDb  = new PouchDB('kanban_cards');
   return Promise.all([
     cardsDb.destroy(),
     kanbanDb.destroy()
@@ -120,27 +135,27 @@ var destroyDbs = function() {
 
 var createRandomCard = function(titlePrefix) {
   var randInt = getRandomInt(10000,99999)
-  var card = {
+  let card = {
     _id: "card/"+randInt,   // URLs as IDs.   nice I like!  https://github.com/jo/docuri
     title: titlePrefix+randInt,
-    product: getRandomArrayElem(fieldValues.products),
-    status:  getRandomArrayElem(fieldValues.status),
-    release: getRandomArrayElem(fieldValues.releases),
+    product: getRandomArrayElem(fieldValues.products).value,
+    status:  getRandomArrayElem(fieldValues.status).value,
+    release: getRandomArrayElem(fieldValues.releases).value,
     description: "Just a random card with some random description. ID of this card is "+randInt+" and it has a lot of more text.",
-    labels: fieldValues.labels.sort(() => .5 - Math.random()).slice(0,3),
-    links: [],
+    labels: fieldValues.labels.sort(() => .5 - Math.random()).slice(0,getRandomInt(1,4)),     // [ "lab1", "lab2", "lab3"]
+    links: [],   // array of targetIds
   }
   return card
 }
 
-var createCards = function(cardsDb) {
-  var cards = []
+var createCards = function() {
+  let cards = []
   // at least one card in every release and col
   for (let i = 0; i < fieldValues.status.length; i++) {
     for (let j = 0; j < fieldValues.releases.length; j++) {
       let card = createRandomCard("Card_")
-      card.status  = fieldValues.status[i]
-      card.release = fieldValues.releases[j]
+      card.status  = fieldValues.status[i].value
+      card.release = fieldValues.releases[j].value
       cards.push(card)
     }
   }
@@ -154,30 +169,21 @@ var createCards = function(cardsDb) {
     var sourceCard = cards[getRandomInt(0, cards.length)]
     var targetCard = cards[getRandomInt(0, cards.length)]
     if (sourceCard._id !== targetCard._id) {
-      sourceCard.links.push({ linkType: "related", target: targetCard._id })
+      sourceCard.links.push({ linkType: "related", targetId: targetCard._id })
     }
   }
-  // bulk insert cards into DBs.
-  return cardsDb.bulkDocs(cards)
-    .then(() => {
-      console.log("DONE. Added "+cards.length+" new cards.")
-      return cards
-    })
-    .catch(err => {
-      console.error("ERROR. Could not createTestData", err)
-      return Promise.reject(err)
-    })
+  return cards
 }
 
 
 var createTestData = function() {
   console.log("Adding test data")
-  var kanbanDb = new PouchDB('kanban_board');
-  var cardsDb  = new PouchDB('kanban_cards');
+  let kanbanDb = new PouchDB('kanban_board');
+  let cardsDb  = new PouchDB('kanban_cards');
+  let cards    = createCards()
   return Promise.all([
-    kanbanDb.bulkDocs(settings),
-    kanbanDb.bulkDocs(editableFields),
-    createCards(cardsDb)
+    kanbanDb.bulkDocs(kanbanData),
+    cardsDb.bulkDocs(cards)
   ])
   .then(res => {
     console.log("DONE. Created Test data. Settings, fields and cards")

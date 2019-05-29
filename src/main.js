@@ -8,7 +8,7 @@ import store from './store/vuex-store.js'
 import BootstrapVue from 'bootstrap-vue'
 import KanbanBoard from './KanbanBoard.vue'
 import EventBus from './store/EventBus.js'
-//import testdata from './TestData.js'
+import testdata from './TestData.js'
 
 //====================================
 // Configure VueJS
@@ -20,12 +20,12 @@ Vue.use(BootstrapVue)
 //====================================
 // Start Vue.js root app
 Promise.resolve()
-  //.then(testdata.destroyDbs)
-  //.then(testdata.createTestData)
+  .then(testdata.destroyDbs)
+  .then(testdata.createTestData)
   //.then(store.dispatch('initStore'))
   .then(EventBus.init)
-  .then(([cards, settings]) => {
-    console.log("Loaded form EventBus.init", cards, settings)
+  .then(( /* [cards, settings] */) => {
+    //console.log("Loaded form EventBus.init", cards, settings)
 
     // Create the Vue RootApp instance
     new Vue({
@@ -43,7 +43,7 @@ Promise.resolve()
         eventBus: EventBus // global event bus. Usage: this.$root.bus.$emit('eventname')
       },
       created() {
-        //console.log("Vue app created.", allCards)
+        //console.log("Vue app created.", this.eventBus.cards)
       },
       mounted() {
         console.log("Vue app mounted successfully", this.eventBus.cards)

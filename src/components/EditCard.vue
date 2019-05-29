@@ -6,21 +6,33 @@
 			</div>
 			<div class="col-sm-10">
 				<input v-if="field.type	===	'TextInput'" type="text" class="form-control"	:id="field.field"	:name="field.field"	v-model="card[field.key]"	:placeholder="field.placeholder" />
-				<select	v-else-if="field.type	===	'SingleSelect'"	v-model="card[field.key]"	class="form-control" :id="field.field">
+				<select	v-else-if="field.type	===	'SingleSelect'"	v-model="card[field.key]"	class="form-control">
 					<option	v-for="opt in	field.options" :key="opt.value"	:value="opt.value">{{opt.displayName}}</option>
 				</select>
-				<button-group	v-else-if="field.type	===	'ButtonGroup'"
+				<!--button-group	v-else-if="field.type	===	'ButtonGroup'"
 					v-model="card[field.key]"
 					:options="field.buttons">
-				</button-group>
+				</button-group -->
+
+				<b-form-group v-else-if="field.type === 'ButtonGroup'">
+			    <b-form-radio-group
+			      v-model="card['status']"
+			      :options="field.buttons"
+			      buttons
+			      button-variant="outline-secondary"
+			      size="sm"
+			      name="radio-btn-outline"
+			    ></b-form-radio-group>
+			  </b-form-group>
+
 				<multiselect	v-else-if="field.type	===	'MultiSelect'"
-					v-model="card['labels']"
-					:options="field.tags"
+					v-model="card[field.key]"
+					:options="field.labels"
 					:option-height="10"
 					:multiple="true"
 					:taggable="false"
 					:showLabels="false"
-					placeholder="Search for tags"
+					placeholder="Search for labels"
 					label="displayName"
 					track-by="value">
 				</multiselect>
@@ -32,6 +44,8 @@
 				<b-form-text v-if="field.description">{{field.description}}</b-form-text>
 			</div>
 		</div>
+
+		<pre>{{card['status']}}</pre>
 
 		<template slot="modal-footer" slot-scope="{ ok, cancel }">
       <b-button variant="success" @click="ok()">
@@ -47,24 +61,21 @@
 
 <script>
 import EventBus from '../store/EventBus.js'
-import ButtonGroup from	'./editComponents/ButtonGroup.vue'
+//import ButtonGroup from	'./editComponents/ButtonGroup.vue'
 import CardLinks from	'./editComponents/CardLinks.vue'
 import Multiselect from 'vue-multiselect'
-import TestData from '../TestData.js'   // TODO: load via store
 
 export default {
 	components:	{
-		ButtonGroup: ButtonGroup,
+		//ButtonGroup: ButtonGroup,
 		CardLinks: CardLinks,
-		//VueMultiSelect:	window.VueMultiselect.default,
 		Multiselect: Multiselect
 	},
 	data:	function() { return	{
 	  card: {},
-		editableFields:	TestData.editableFields,
-		selectedTags:	undefined,		//TODO:	move to	child	component
 	}},
 	computed:	{
+		editableFields() { return this.$root.eventBus.editableFields },
 		avatarBackgroundStyle: function()	{
 			return "background-color:	#4a6785;"
 		},
@@ -77,8 +88,9 @@ export default {
 	},
 	methods: {
 	  startEditCard(cardId) {
-	    this.card = this.$store.getters.getCardById(cardId)  //TODO: make a deep copy of this card  => user may press cancel
-	    if (!this.card) console.log("WARN: cannot find card._id="+cardId+" to edit!")
+	    this.card = this.$root.eventBus.cards[cardId]  //TODO: make a deep copy of this card  => user may press cancel
+	    if (!this.card) { console.log("WARN: cannot find card._id="+cardId+" to edit!"); return }
+	    console.log("Edit card", this.card)
 	    this.$refs['edit-card-modal'].show()
 	  },
 	  saveEditedCard() {

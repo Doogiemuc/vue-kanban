@@ -1,6 +1,7 @@
 <template>
 	<div>
-		<a v-for="link in	card.links" :key="link.targetCard._id"	href="#">{{link.targetCard.title}}</a>
+		<a v-for="link in	card.links" :key="link.targetId" class="kanbancard-link" href="#">{{getTargetDisplayName(link.targetId)}}</a>
+		<div class="clearfix"></div>
 		<b-form	inline>
 			<b-form-select v-model="newLinkType" :options="linkTypeOptions"	placeholder="Link	type"	size="sm"	class="mr-3">
 			  <template slot="first">
@@ -50,7 +51,10 @@ export default {
 	methods: {
 		addLink()	{
 			console.log("CardLinks.addLink")
-		}
+		},
+		getTargetDisplayName(targetId) {
+			return this.$root.eventBus.cards[targetId]._id
+		},
 	},
 
 }
@@ -59,6 +63,9 @@ export default {
 <style>
 .cardSelector {
   width: auto;
+}
+.kanbancard-link+.kanbancard-link::before {
+  content: ", "
 }
 </style>
 

@@ -2,7 +2,7 @@
   <b-form-group>
     <b-form-radio-group
       v-model="selectedButton"
-      :options="buttonOptions"
+      :options="options"
       buttons
       button-variant="outline-secondary"
       size="sm"
@@ -19,25 +19,27 @@
  */
 export default {
 	props: {
-		'options': { type: Array,	required:	true },
-		value:     { type: String }
+		'options': { type: Array,	required:	true },    // { text: "Button 1 Text", value: "radio1" }
+		'value':   { type: String, required: false }
 	},
-	computed: {
-	  buttonOptions: function() {
-	    return this.options.map(opt => ({ text: opt.displayName, value: opt.value }))
-	  }
-	},
-	data:	function() { return	{
-		selectedButton: this.value,		
+	data:	function() {
+		console.log("ButtonGroup this.value", this.value)
+		return	{
+		selectedButton: this.value,
 	}},
 	watch: {
+		/*
 	  value: function(newValue) {
 	    this.selectedButton = newValue
 	  },
 	  selectedButton: function() {
 	    this.$emit('input',	this.selectedButton)
 	  }
+	  */
 	},
+	mounted() {
+		console.log("ButtonGroup", this.options, this.value)
+	}
 }
 </script>
 

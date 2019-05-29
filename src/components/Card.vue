@@ -3,7 +3,7 @@
 		<div class="card-avatar" :style="avatarBackgroundStyle">AB</div>
 		<div v-html="card.description"></div>
 		<div v-if="card.links.length > 0" class="clearfix">
-		  <a class="kanbancard-link" v-for="link in card.links" :key="link.target" href="#">{{link.target}}</a>
+		  <a class="kanbancard-link" v-for="link in card.links" :key="link.target" href="#">{{getLinkTarget(link.targetId)}}</a>
 		</div>
 		<div v-if="card.labels.length > 0" class="clearfix">
 		  <span	v-for="label in	card.labels" :key="label.value"	class="card-label">{{label.displayName}}</span>
@@ -25,10 +25,12 @@ export default {
 			return "background-color:	#4a6785;"	 //TODO: pick	different	background for each	username
 		},
 		computedStyle: function()	{
-			switch(this.card.status.displayName) {
+			switch(this.card.status) {
 			  case "Done":
 			    return {	"border-left": "3px	solid	green" }
-			  case "In Progress":
+			  case "Ready":
+			    return {	"border-left": "3px	solid	#00A" }
+			  case "InProgress":
 			    return {	"border-left": "3px	solid	#ecec10" }
 			  default:
 			    return {}
@@ -42,7 +44,13 @@ export default {
 		},
 		getActiveClass(index)	{
 			return { active: index === 0 }
-		}
+		},
+		getLinkTarget(targetId) {
+			return this.$root.eventBus.cards[targetId] ? this.$root.eventBus.cards[targetId]._id : "<deleted>"
+		},
+		getDisplayName(field, value) {
+			return this.$root.eventBus.getDisplayName(field, value)
+		},
 	}
 }
 </script>
