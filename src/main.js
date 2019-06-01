@@ -4,7 +4,6 @@ console.log("===== Welcome to KANBAN =====")
 console.log("=============================")
 
 import Vue from 'vue'
-import store from './store/vuex-store.js'
 import BootstrapVue from 'bootstrap-vue'
 import KanbanBoard from './KanbanBoard.vue'
 import EventBus from './store/EventBus.js'
@@ -20,12 +19,16 @@ Vue.use(BootstrapVue)
 //====================================
 // Start Vue.js root app
 Promise.resolve()
+
   .then(testdata.destroyDbs)
+
   .then(testdata.createTestData)
-  //.then(store.dispatch('initStore'))
+
   .then(EventBus.init)
-  .then(( /* [cards, settings] */) => {
-    //console.log("Loaded form EventBus.init", cards, settings)
+
+  .then(([cards, settings]) => {
+
+    console.log("EventBus.init", cards, settings)
 
     // Create the Vue RootApp instance
     new Vue({
@@ -38,7 +41,6 @@ Promise.resolve()
         //}
 
       }),
-      store,           // vuex-store is directly available to all components as this.$store
       data: {
         eventBus: EventBus // global event bus. Usage: this.$root.bus.$emit('eventname')
       },

@@ -43,24 +43,15 @@
 				<p v-else	class="mt-2">Unknown field.type	{{field.type}}</p>
 				<b-form-text v-if="field.description">{{field.description}}</b-form-text>
 			</div>
+
+
 		</div>
 
-		<pre>{{card['status']}}</pre>
-
-		<template slot="modal-footer" slot-scope="{ ok, cancel }">
-      <b-button variant="success" @click="ok()">
-        OKKK
-      </b-button>
-      <b-button variant="scondary" @click="cancel()">
-        CancelLLL
-      </b-button>
-    </template>
 	</b-modal>
 </template>
 
 
 <script>
-import EventBus from '../store/EventBus.js'
 //import ButtonGroup from	'./editComponents/ButtonGroup.vue'
 import CardLinks from	'./editComponents/CardLinks.vue'
 import Multiselect from 'vue-multiselect'
@@ -80,27 +71,44 @@ export default {
 			return "background-color:	#4a6785;"
 		},
 	},
-	created() {
-	},
   mounted() {
-    EventBus.$on('start-edit-card', this.startEditCard)  // param 'cardId' is passed here
+    this.$root.eventBus.$on('start-edit-card', this.startEditCard)  // param 'cardId' is passed here
 	  this.$refs['edit-card-modal'].$on('ok', this.saveEditedCard)
 	},
 	methods: {
+
 	  startEditCard(cardId) {
-	    this.card = this.$root.eventBus.cards[cardId]  //TODO: make a deep copy of this card  => user may press cancel
-	    if (!this.card) { console.log("WARN: cannot find card._id="+cardId+" to edit!"); return }
-	    console.log("Edit card", this.card)
-	    this.$refs['edit-card-modal'].show()
+	  	//reload card from DB to get the latest rev
+	    this.$root.eventBus.loadCard(cardId).then(card => {
+	    	if (!this.card) { console.log("WARN: cannot find card._id="+cardId+" to edit!"); return }
+	    	this.card = card
+		    console.log("Edit card", this.card)
+		    this.$refs['edit-card-modal'].show()
+	    })
+	    .catch(err => {
+	    	console.error("Error: Cannot edit card._id="+cardId, err)
+	    })
 	  },
+
 	  saveEditedCard() {
-	    this.$store.commit('setCard', this.card)
+	  	console.log("Saved edited card", this.card)
+	  	this.$root.eventBus.storeCard(this.card)
 	  }
 	}
 }
 </script>
 
 <style>
+
+#edit-card-modal___BV_modal_footer_ {
+	justify-content: space-between;
+}
+#edit-card-modal___BV_modal_footer_ .btn-primary {
+	width: 100px;
+}
+
+
+
 .multiselect {
   z-index: 1060;
 }

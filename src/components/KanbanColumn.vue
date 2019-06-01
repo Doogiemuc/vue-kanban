@@ -5,11 +5,11 @@
 			v-model="sortedCards"
 			class="draggableContainer"
 			v-bind="dragOptions"
-			@start="dragging = true"
-			@end="dragging = false">
+			@change="listChanged"
+			@end="dragEnd">
 			<card
 				v-for="card	in sortedCards"
-				:card="card"
+				:initCard="card"
 				:key="card.id">
 			</card>
 			<div v-if="sortedCards.length	===	0" key="99999" style="height:	100px">&nbsp;</div>
@@ -30,8 +30,22 @@ export default {
 		'column':  { type: Object, required: true	},
 		'row':     { type: Object, required: true	}
 	},
+	/*
+	computed: {
+		sortedCards: {
+			get: function() {
+				console.log("KanbanCol.sortedCards")
+				return this.$root.eventBus.cardsArray.filter(card => cardFilterFunc(card, this.row, this.column)).sort(cardSortFunc)
+			},
+			set: function(newlySorteCards) {
+
+			}
+		}
+
+	},
+	*/
 	data:	function() { return	{
-		sortedCards: this.$root.eventBus.getCardsForRowAndCol(this.row, this.column), //    //.slice(),	// MUST	make a copy
+		sortedCards: this.$root.eventBus.getCardsForRowAndCol(this.row, this.column),
 		dragging:	false,
 		dragOptions: {
 			animation: 200,
@@ -41,6 +55,24 @@ export default {
 			dragClass: "dragClass"
 		},
 	}},
+
+	methods: {
+		listChanged(evt) {
+			console.log("listChanged "+this.row.displayName+","+this.column.displayName, evt)
+			if (evt.moved && evt.moved.newIndex !== evt.moved.oldIndex) {
+				var card = evt.moved.element
+				var above = this.sortedCards[evt.moved.newIndex-1].rank
+				var below = this.sortedCards[evt.moved.newIndex+1].rank
+				card.rank = (above-below)/2 + below
+				console.log(card.title+" has new rank ", card.rank)
+				//this.$root.eventBus.storeCard(card)
+			}
+		},
+
+		dragEnd(var1, var2) {
+			console.log("dragEnd", var1, var2)
+		}
+	}
 
 }
 </script>

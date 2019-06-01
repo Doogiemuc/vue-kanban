@@ -133,6 +133,7 @@ var destroyDbs = function() {
   })
 }
 
+var rankSeq = 1   // monotonously rising sequence.   Higher Ranks are higher up in the backlog
 var createRandomCard = function(titlePrefix) {
   var randInt = getRandomInt(10000,99999)
   let card = {
@@ -143,6 +144,7 @@ var createRandomCard = function(titlePrefix) {
     release: getRandomArrayElem(fieldValues.releases).value,
     description: "Just a random card with some random description. ID of this card is "+randInt+" and it has a lot of more text.",
     labels: fieldValues.labels.sort(() => .5 - Math.random()).slice(0,getRandomInt(1,4)),     // [ "lab1", "lab2", "lab3"]
+    rank:    rankSeq++,
     links: [],   // array of targetIds
   }
   return card
@@ -156,6 +158,7 @@ var createCards = function() {
       let card = createRandomCard("Card_")
       card.status  = fieldValues.status[i].value
       card.release = fieldValues.releases[j].value
+      card.rank    = rankSeq++
       cards.push(card)
     }
   }

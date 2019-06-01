@@ -9,6 +9,7 @@
 		  <span	v-for="label in	card.labels" :key="label.value"	class="card-label">{{label.displayName}}</span>
 		</div>
     <a href="#"	class="card-edit-icon" @click="startEditCard"><i class="far fa-edit"></i></a>
+    <pre>{{card.rank}}</pre>
 	</b-card>
 </template>
 
@@ -17,9 +18,11 @@ import EventBus from '../store/EventBus.js'
 
 export default {
 	props: {
-		'card':	{	type:	Object,	required:	true },
+		'initCard':	{	type:	Object,	required:	true },
 	},
-	data:	function() { return	{} },
+	data:	function() { return	{
+		card: this.initCard
+	}},
 	computed:	{
 		avatarBackgroundStyle: function()	{
 			return "background-color:	#4a6785;"	 //TODO: pick	different	background for each	username
@@ -51,6 +54,13 @@ export default {
 		getDisplayName(field, value) {
 			return this.$root.eventBus.getDisplayName(field, value)
 		},
+	},
+	created() {
+		this.$root.eventBus.$on('card-stored', storedCard => {
+			if (storedCard._id === this.card._id) {
+				this.card = storedCard
+			}
+		})
 	}
 }
 </script>

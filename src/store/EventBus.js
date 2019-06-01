@@ -1,9 +1,7 @@
 /**
  Global event bus. Publish subcribe pattern.
- This is not a UI component. See also vuex-store.js
- The vuex-store is responsible for storing global application state (e.g. all cards)
- This EventBus only publishes events that components can subscribe and listen to.
- This EventBus does not store any data.
+ This is not a UI component.
+ This EventBus publishes events that components can subscribe and listen to.
 
  https://medium.com/@andrejsabrickis/https-medium-com-andrejsabrickis-create-simple-eventbus-to-communicate-between-vue-js-components-cdc11cd59860
  */
@@ -26,7 +24,11 @@ var cardFilterFunc = function(card, row, col) {
 	       col.status.includes(card.status)
 }
 
+var cardSortFunc = function(card1, card2) {
+	return card1.rank - card2.rank
+}
 
+/** The event bus is a vue component */
 const EventBus = new Vue({
 	data: function() { return {
 		cards: {},			// cards by _Id
@@ -44,6 +46,7 @@ const EventBus = new Vue({
 			cardsDb  = new PouchDB('kanban_cards');
 			return Promise.all([this.loadCards(), this.loadKanbanData()])
 		},
+
 		/* load cards from PouchDb. Need to map pouchDB result to cards {map} */
 		loadCards() {
 			return cardsDb.allDocs({include_docs: true}).then(res => {
@@ -53,20 +56,39 @@ const EventBus = new Vue({
 		    return this.cards
 		  })
 		},
+
 		/* load application settins from PouchDB */
 		loadKanbanData() {
 			return kanbanDb.allDocs({include_docs: true}).then(res => {
 		    res.rows.forEach(row => {
 		    	this.$set(this.settings, row.id, row.doc[row.id])
 		    })
-		    console.log(this.settings)
 		    return this.settings
 		  })
 		},
+
+		/** load one card from the PouchDB */
+		loadCard(id) {
+			return cardsDb.get(id).then(res => {
+				this.$emit('card-loaded', res)
+				return res
+			})
+		},
+
+    /** store card to DB and emit 'card-stored' event */
+		storeCard(card) {
+			return cardsDb.put(card).then(res => {
+				if (!res.ok) console.error("Cannot store card._id="+card._id, res)
+				this.$set(this.cards, card._id, card)
+				this.$emit('card-stored', card)
+			})
+		},
+
 		/* get all cards for this row and col by using the configurable cardFilterFunc */
 		getCardsForRowAndCol(row, col) {
+			//console.log("getCardsForRowAndCol", row.displayName, col.displayName)
 			//TODO: load cardFilterFunc from DB and eval()
-			return this.cardsArray.filter(card => cardFilterFunc(card, row, col))   //.sort(cardSortFunc)
+			return this.cardsArray.filter(card => cardFilterFunc(card, row, col)).sort(cardSortFunc)		// filter() created a new array!
 		},
 
 		getDisplayName(field, value) {
