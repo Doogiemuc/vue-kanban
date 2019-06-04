@@ -21,7 +21,6 @@ Vue.use(BootstrapVue)
 Promise.resolve()
 
   .then(testdata.destroyDbs)
-
   .then(testdata.createTestData)
 
   .then(EventBus.init)
