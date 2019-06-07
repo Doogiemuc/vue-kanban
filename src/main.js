@@ -25,9 +25,9 @@ Promise.resolve()
 
   .then(EventBus.init)
 
-  .then(([cards, settings]) => {
+  .then((/* [cardItemsById, settings]  */ ) => {
 
-    console.log("EventBus.init", cards, settings)
+    //console.log("EventBus.init cardItemsById and settings:", cardItemsById, settings)
 
     // Create the Vue RootApp instance
     new Vue({
@@ -47,7 +47,7 @@ Promise.resolve()
         //console.log("Vue app created.", this.eventBus.cards)
       },
       mounted() {
-        console.log("Vue app mounted successfully", this.eventBus.cards)
+        console.log("Vue app mounted successfully", this.eventBus.cardItemsById)
       },
     }) //.$mount('#app')
 

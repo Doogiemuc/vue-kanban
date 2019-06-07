@@ -153,7 +153,6 @@ var destroyDbs = function() {
 	})
 }
 
-var rankSeq = 1   // monotonously rising sequence.   Higher Ranks are higher up in the backlog
 var createRandomCard = function(titlePrefix) {
 	var randInt = getRandomInt(10000,99999)
 	let card = {
@@ -164,7 +163,6 @@ var createRandomCard = function(titlePrefix) {
 		release: getRandomArrayElem(fieldValues.releases).value,
 		description: "Just a random card with some random description. ID of this card is "+randInt+" and it has a lot of more text.",
 		labels: fieldValues.labels.sort(() => .5 - Math.random()).slice(0,getRandomInt(1,4)),     // [ "lab1", "lab2", "lab3"]
-		rank:    rankSeq++,
 		links: [],   // array of targetIds
 	}
 	return card
@@ -183,7 +181,6 @@ var createCardList = function() {
 			let card = createRandomCard("Card_")
 			card.status  = fieldValues.status[i].value
 			card.release = fieldValues.releases[j].value
-			card.rank    = rankSeq++
 			cardList.appendCard(card)
 		}
 	}
@@ -215,11 +212,12 @@ var createTestData = function() {
 	let cardList = createCardList()
 	console.log("cardList", cardList.toArray())
 	
-	let cardDocs = cardList.toArray().map(cardItem => {
-	  let cardDoc = cardItem.card
-	  cardDoc.nextId = cardItem.next ? cardItem.next.card._id : undefined
-	  cardDoc.prevId = cardItem.prev ? cardItem.prev.card._id : undefined
-	  return cardDoc
+	let cardDocs = cardList.toArray().map(cardItem => { 
+	  return {
+      card:   cardItem.card,
+      nextId: cardItem.next ? cardItem.next.card._id : undefined,
+      prevId: cardItem.prev ? cardItem.prev.card._id : undefined
+    }
 	})
 	
 	return Promise.all([

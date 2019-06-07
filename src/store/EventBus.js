@@ -34,17 +34,13 @@ class CardList extends LinkedList {
 
 /**
  Should that card be shown in this row and column?
- @param card {Object} one card
+ @param card {Object} one cardItem that holds a card
  @param row {Object} the swimmlane, eg. a release
  @param col {Object} a column. You can for example show cards with a given status in each column.
  */
-var cardFilterFunc = function(card, row, col) {
-	return row.value === card.release &&
-				 col.status.includes(card.status)
-}
-
-var cardSortFunc = function(card1, card2) {
-	return card1.rank - card2.rank
+var cardFilterFunc = function(cardItem, row, col) {
+	return row.value === cardItem.card.release &&
+				 col.status.includes(cardItem.card.status)
 }
 
 /** The event bus is a vue component */
@@ -55,7 +51,7 @@ const EventBus = new Vue({
 		settings: {},
 	}},
 	computed: {
-		cardsArray() { return Object.values(this.cardsById) },
+		cardListAsArray() { return this.cardList.toArray() },
 		columns()  { return this.settings.columns },
 		releases() { return this.settings.fieldValues.releases },
 		editableFields() { return this.settings.editableFields },
@@ -77,11 +73,11 @@ const EventBus = new Vue({
 			return cardsDb.allDocs({include_docs: true}).then(res => {
 				// Fill cardItemsById
 				res.rows.forEach(row => {
-					this.cardItemsById[row.doc._id] = new CardItem(row.doc)
+					this.cardItemsById[row.doc.card._id] = new CardItem(row.doc.card)
 				})
 				// Restore all the next and prev relations
 				res.rows.forEach(row => {
-					var cardItem = this.cardItemsById[row.doc._id]
+					var cardItem = this.cardItemsById[row.doc.card._id]
 					if (row.doc.nextId) {
 						cardItem.next = this.cardItemsById[row.doc.nextId]  
 					} else {
@@ -133,11 +129,16 @@ const EventBus = new Vue({
 			})
 		},
 
-		/* get all cards for this row and col by using the configurable cardFilterFunc */
-		getCardsForRowAndCol(row, col) {
-			//console.log("getCardsForRowAndCol", row.displayName, col.displayName)
+		/* get all cardItems for this row and col by using the configurable cardFilterFunc */
+		getCardItemsForRowAndCol(row, col) {
 			//TODO: load cardFilterFunc from DB and eval()
-			return this.cardsArray.filter(card => cardFilterFunc(card, row, col)).sort(cardSortFunc)		// filter() created a new array!
+			var cardItem = this.cardList.head
+      var result = []
+      while (cardItem) {
+        if (cardFilterFunc(cardItem, row,col)) result.push(cardItem)
+        cardItem = cardItem.next
+      }
+			return result  // result is already sorted 
 		},
 
 		getDisplayName(field, value) {
